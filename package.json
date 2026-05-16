@@ -2,7 +2,7 @@
   "name": "tachikoma-mcp",
   "displayName": "Tachikoma MCP Server",
   "description": "Code intelligence — semantic search, impact analysis, rename refactoring, wiki generation. Powered by tachikoma knowledge graph.",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "publisher": "Tachikoma",
   "license": "MIT",
   "icon": "media/icon.png",
@@ -24,13 +24,19 @@
     "knowledge-graph",
     "chat-participant"
   ],
+  "extensionDependencies": [
+    "Tachikoma.tachikoma-collab"
+  ],
   "activationEvents": [],
   "main": "./dist/extension.js",
   "contributes": {
     "mcpServers": {
       "tachikoma": {
         "command": "npx",
-        "args": ["-y", "tachikoma-mcp-server"],
+        "args": [
+          "-y",
+          "tachikoma-mcp-server"
+        ],
         "env": {}
       }
     }
