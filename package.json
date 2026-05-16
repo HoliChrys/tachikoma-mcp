@@ -1,0 +1,48 @@
+{
+  "name": "tachikoma-mcp",
+  "displayName": "Tachikoma MCP Server",
+  "description": "Code intelligence — semantic search, impact analysis, rename refactoring, wiki generation. Powered by tachikoma knowledge graph.",
+  "version": "1.0.0",
+  "publisher": "Tachikoma",
+  "license": "MIT",
+  "icon": "media/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HoliChrys/tachikoma-mcp"
+  },
+  "engines": {
+    "vscode": "^1.99.0"
+  },
+  "categories": [
+    "AI",
+    "Chat"
+  ],
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "code-intelligence",
+    "knowledge-graph",
+    "chat-participant"
+  ],
+  "activationEvents": [],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "mcpServers": {
+      "tachikoma": {
+        "command": "npx",
+        "args": ["-y", "tachikoma-mcp-server"],
+        "env": {}
+      }
+    }
+  },
+  "scripts": {
+    "compile": "esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --sourcemap",
+    "watch": "npm run compile -- --watch",
+    "vscode:prepublish": "npm run compile"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.99.0",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.9.0"
+  }
+}
