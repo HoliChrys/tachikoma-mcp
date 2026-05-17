@@ -2,7 +2,7 @@
   "name": "tachikoma-mcp",
   "displayName": "Tachikoma MCP Server",
   "description": "Code intelligence — semantic search, impact analysis, rename refactoring, wiki generation. Powered by tachikoma knowledge graph.",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "publisher": "Tachikoma",
   "license": "MIT",
   "icon": "media/icon.png",
@@ -54,6 +54,10 @@
       {
         "command": "tachikoma-mcp.showLogs",
         "title": "Tachikoma MCP: Show Logs"
+      },
+      {
+        "command": "tachikoma-mcp.enableMcp",
+        "title": "Tachikoma MCP: Enable VS Code MCP support"
       }
     ]
   },

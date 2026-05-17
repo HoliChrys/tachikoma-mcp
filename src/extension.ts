@@ -38,7 +38,14 @@ export async function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand('tachikoma-mcp.menu', showMenu),
         vscode.commands.registerCommand('tachikoma-mcp.reconnect', reconnect),
         vscode.commands.registerCommand('tachikoma-mcp.showLogs', () => output?.show()),
+        vscode.commands.registerCommand('tachikoma-mcp.enableMcp', enableMcpSupport),
     );
+
+    // VS Code ignores contributes.mcpServers unless chat.mcp.enabled is true.
+    // Without this check, users install the extension, see nothing happen,
+    // and there's no actionable error in the UI. Surface it once on first
+    // activation per major version.
+    await ensureMcpEnabled(context);
 
     await ensureSession();
 
@@ -190,6 +197,59 @@ async function ensureSession(): Promise<void> {
             vscode.commands.executeCommand('tachikoma.connect');
         }
     });
+}
+
+async function ensureMcpEnabled(context: vscode.ExtensionContext): Promise<void> {
+    const chatConfig = vscode.workspace.getConfiguration('chat');
+    const enabled = chatConfig.get<boolean>('mcp.enabled');
+    if (enabled === true) {
+        output?.appendLine('chat.mcp.enabled = true — MCP servers will be picked up');
+        return;
+    }
+
+    // Don't nag — only ask once per extension version.
+    const flagKey = `mcpEnablePromptedFor:${context.extension.packageJSON.version}`;
+    if (context.globalState.get<boolean>(flagKey)) {
+        return;
+    }
+    await context.globalState.update(flagKey, true);
+
+    const choice = await vscode.window.showInformationMessage(
+        'Tachikoma MCP needs `chat.mcp.enabled` to be true so VS Code picks up '
+        + 'the MCP server declared by this extension. Enable it now?',
+        'Enable',
+        'Open Setting',
+        'Later',
+    );
+    if (choice === 'Enable') {
+        await enableMcpSupport();
+    } else if (choice === 'Open Setting') {
+        await vscode.commands.executeCommand(
+            'workbench.action.openSettings', 'chat.mcp.enabled',
+        );
+    }
+}
+
+async function enableMcpSupport(): Promise<void> {
+    try {
+        await vscode.workspace.getConfiguration('chat').update(
+            'mcp.enabled', true, vscode.ConfigurationTarget.Global,
+        );
+        output?.appendLine('chat.mcp.enabled set to true (user settings)');
+        const choice = await vscode.window.showInformationMessage(
+            'MCP support enabled. Reload the window so VS Code re-scans MCP servers.',
+            'Reload Window',
+        );
+        if (choice === 'Reload Window') {
+            await vscode.commands.executeCommand('workbench.action.reloadWindow');
+        }
+    } catch (err) {
+        output?.appendLine(`failed to set chat.mcp.enabled: ${err}`);
+        vscode.window.showErrorMessage(
+            `Could not enable MCP support automatically: ${err}. `
+            + 'Open Settings (Cmd+,) and turn on "chat.mcp.enabled".',
+        );
+    }
 }
 
 export function deactivate() {

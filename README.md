@@ -28,9 +28,17 @@ workspace change.
 1. Click an install badge above (or search **Tachikoma MCP Server** in the
    VS Code Extensions panel).
 2. Install **Tachikoma Collab** as well — it's a hard dependency.
-3. `Cmd+Shift+P` → *Tachikoma: Connect to Computer*.
-4. Status bar shows `⚡ Tachikoma MCP` when ready. The MCP panel lists 27
+3. On first activation, the extension prompts you to enable
+   `chat.mcp.enabled` (VS Code ignores MCP servers contributed by
+   extensions until this setting is on). Click **Enable** → it sets the
+   setting in user scope and offers to reload the window.
+4. `Cmd+Shift+P` → *Tachikoma: Connect to Computer*.
+5. Status bar shows `⚡ Tachikoma MCP` when ready. The MCP panel lists 27
    tools.
+
+If you dismissed the prompt and the MCP panel is empty, run
+*Tachikoma MCP: Enable VS Code MCP support* from the command palette, or
+toggle `chat.mcp.enabled` in Settings yourself.
 
 ## Status bar & commands
 
@@ -125,6 +133,7 @@ You'll still need Tachikoma Collab for auth — or set
 
 | Symptom | What to check |
 |---------|---------------|
+| MCP panel empty, status bar says **connected** | `chat.mcp.enabled` is off. Run *Tachikoma MCP: Enable VS Code MCP support* and reload. |
 | Status bar says **offline** | Connect via Tachikoma Collab first. |
 | Status bar says **stale** | Click → Reconnect. Or wait — Collab refreshes the session on every workspace change. |
 | MCP panel shows 0 tools | Your token lacks ACL grants on the indexing channels. Log in as an admin or grant access. |
