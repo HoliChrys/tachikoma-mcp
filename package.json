@@ -2,7 +2,7 @@
   "name": "tachikoma-mcp",
   "displayName": "Tachikoma MCP Server",
   "description": "Code intelligence — semantic search, impact analysis, rename refactoring, wiki generation. Powered by tachikoma knowledge graph.",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "publisher": "Tachikoma",
   "license": "MIT",
   "icon": "media/icon.png",
