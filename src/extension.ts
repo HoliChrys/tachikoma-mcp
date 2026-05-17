@@ -5,8 +5,14 @@ import * as os from 'os';
 
 const SESSION_FILE = path.join(os.homedir(), '.tachikoma', 'mcp-session.json');
 
-// Session is considered "stale" if not refreshed in this window.
-const STALE_AFTER_MS = 5 * 60 * 1000;
+// Fallback "stale" window when the token has no decodable expires_at.
+// Collab rewrites the session file every 10 min on token refresh, so 30 min
+// means "we've missed at least two refresh cycles — something is wrong."
+const STALE_AFTER_MS = 30 * 60 * 1000;
+
+// Buffer below the token's real expiry. If the token expires in less than
+// this we mark stale so the user reconnects before tools start failing.
+const TOKEN_STALE_BUFFER_MS = 5 * 60 * 1000;
 
 type Status = 'connected' | 'stale' | 'offline';
 
@@ -92,8 +98,38 @@ function writeSession(partial: Partial<McpSession> & { host: string; token: stri
     fs.renameSync(tmp, SESSION_FILE);
 }
 
+/** Decode tachikoma's base64-JSON token and return its expires_at (Unix
+ * seconds), or null if undecodable. Tachikoma tokens aren't standard JWTs
+ * — they're a single base64-encoded JSON blob. */
+function tokenExpiresAt(token: string): number | null {
+    try {
+        // Handle both single-blob and dotted (JWT-shaped) tokens.
+        const payload = token.includes('.') ? token.split('.')[1] : token;
+        const pad = '='.repeat((4 - (payload.length % 4)) % 4);
+        const b64 = (payload + pad).replace(/-/g, '+').replace(/_/g, '/');
+        const decoded = Buffer.from(b64, 'base64').toString('utf-8');
+        const obj = JSON.parse(decoded);
+        const exp = typeof obj.expires_at === 'number' ? obj.expires_at : null;
+        return exp;
+    } catch {
+        return null;
+    }
+}
+
 function statusOf(session: McpSession | null): Status {
     if (!session?.token) return 'offline';
+
+    // Primary signal: the token's own expires_at. If it's still good for
+    // more than TOKEN_STALE_BUFFER_MS, we're connected regardless of
+    // when the file was last touched.
+    const exp = tokenExpiresAt(session.token);
+    if (exp !== null) {
+        const nowSec = Date.now() / 1000;
+        if (exp - nowSec < TOKEN_STALE_BUFFER_MS / 1000) return 'stale';
+        return 'connected';
+    }
+
+    // Fallback: file mtime — only if we can't decode the token at all.
     const updated = Date.parse(session.updatedAt);
     if (Number.isNaN(updated)) return 'stale';
     if (Date.now() - updated > STALE_AFTER_MS) return 'stale';
