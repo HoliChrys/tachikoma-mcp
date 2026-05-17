@@ -13,10 +13,15 @@ This extension registers `tachikoma` as an MCP server via
 Copilot Chat (and any other MCP client that reads the VS Code registry)
 picks up 27 tools at launch — without you editing `mcp.json` by hand.
 
-The MCP transport is a tiny stdio↔SSE bridge (`tachikoma-mcp-server` on
-npm) spawned by VS Code. It reads your auth from the session file written
-by the [Tachikoma Collab](https://marketplace.visualstudio.com/items?itemName=Tachikoma.tachikoma-collab)
+The MCP transport is a stdio↔SSE bridge (`tachikoma-mcp-server` ≥ 1.2.0
+on npm) spawned by VS Code. It reads your auth from the session file
+written by the [Tachikoma Collab](https://marketplace.visualstudio.com/items?itemName=Tachikoma.tachikoma-collab)
 extension, so there are no tokens in your VS Code settings.
+
+The 1.2.0 bridge reconnects forever with exponential backoff, re-reads the
+session file on token rotation (collab 4.4.0+ refreshes it every 10 min
+without manual reconnect), and re-pushes the active context list on every
+workspace change.
 
 ## Quick start
 
