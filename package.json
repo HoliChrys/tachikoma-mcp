@@ -2,7 +2,7 @@
   "name": "tachikoma-mcp",
   "displayName": "Tachikoma MCP Server",
   "description": "Code intelligence — semantic search, impact analysis, rename refactoring, wiki generation. Powered by tachikoma knowledge graph.",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "publisher": "Tachikoma",
   "license": "MIT",
   "icon": "media/icon.png",
@@ -27,7 +27,9 @@
   "extensionDependencies": [
     "Tachikoma.tachikoma-collab"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
     "mcpServers": {
@@ -39,7 +41,21 @@
         ],
         "env": {}
       }
-    }
+    },
+    "commands": [
+      {
+        "command": "tachikoma-mcp.menu",
+        "title": "Tachikoma MCP: Show Menu"
+      },
+      {
+        "command": "tachikoma-mcp.reconnect",
+        "title": "Tachikoma MCP: Reconnect"
+      },
+      {
+        "command": "tachikoma-mcp.showLogs",
+        "title": "Tachikoma MCP: Show Logs"
+      }
+    ]
   },
   "scripts": {
     "compile": "esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --sourcemap",
