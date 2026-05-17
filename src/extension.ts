@@ -67,8 +67,8 @@ function readSession(): McpSession | null {
     }
 }
 
-// Collab's getMcpSession returns {host, token, userId}; we fill in the
-// remaining fields the bridge expects.
+// Collab >=4.4.0 returns the full McpSession shape. Older versions return
+// {host, token, userId} only — we fill in the rest as a fallback.
 function writeSession(partial: Partial<McpSession> & { host: string; token: string }): void {
     const dir = path.dirname(SESSION_FILE);
     fs.mkdirSync(dir, { recursive: true });
